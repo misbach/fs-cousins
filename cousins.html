@@ -15,6 +15,7 @@
             <label for="select" class="col-3 col-form-label">Your relationship to ancestor</label> 
             <div class="col-8">
             <select id="select" name="select" class="custom-select person1" style="width: 215px;">
+                <option value="0">Parent</option>
                 <option value="1">Grandparent</option>
                 <option value="2">Great Grandparent</option>
                 <option value="3">2nd Great Grandparent</option>
@@ -33,6 +34,7 @@
             <label class="col-3 col-form-label" for="selecp1">Your cousin's relationship to same ancestor</label> 
             <div class="col-8">
             <select id="select" name="selecp1" class="custom-select person2" style="width: 215px;">
+                <option value="0">Parent</option>
                 <option value="1">Grandparent</option>
                 <option value="2">Great Grandparent</option>
                 <option value="3">2nd Great Grandparent</option>
@@ -61,12 +63,12 @@
         });
         
         function calc(p1, p2) {
-            var relationship = "You and your relative are siblings";
+            var relationship = "You are siblings";
             if (p1 == p2) {
                 if (p1 == 0) {
-                    relationship = "You and your relative are Siblings"
+                    relationship = "You are Siblings"
                 } else {
-                    relationship = "You and your relative are " + degree(p1) + " Cousins"
+                    relationship = "You are " + degree(p1) + " Cousins"
                 }
             } else if (p1 == 0 && p2 > 0) {
                 var grandind = "";
@@ -99,10 +101,10 @@
                     removed = p2 - p1
                 }
                 if (removed > 0) {
-                    relationship = "You and your relative are " + degree(lesser) + " cousins " + removed;
+                    relationship = "You are " + degree(lesser) + " cousins " + removed;
                     if (removed == 1) relationship += " time removed";
                     else relationship += " times removed"
-                } else relationship = "You and your relative are " + degree(lesser) + " cousins"
+                } else relationship = "You are " + degree(lesser) + " cousins"
             }
             return relationship
         }
