@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Cousin Calculator</title>
+  </head>
+  <body>
+    <div class="container">
+        <h1>Cousin Calculator</h1>
+        <p>Calculate your relationship to another cousin based on a common ancestor.</p>
+
+        <div class="form-group row">
+            <label for="select" class="col-3 col-form-label">Your relationship to ancestor</label> 
+            <div class="col-8">
+            <select id="select" name="select" class="custom-select person1" style="width: 215px;">
+                <option value="1">Grandparent</option>
+                <option value="2">Great Grandparent</option>
+                <option value="3">2nd Great Grandparent</option>
+                <option value="4">3rd Great Grandparent</option>
+                <option value="5">4th Great Grandparent</option>
+                <option value="6">5th Great Grandparent</option>
+                <option value="7">6th Great Grandparent</option>
+                <option value="8">7th Great Grandparent</option>
+                <option value="9">8th Great Grandparent</option>
+                <option value="10">9th Great Grandparent</option>
+                <option value="11">10th Great Grandparent</option>
+            </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-3 col-form-label" for="selecp1">Your cousin's relationship to same ancestor</label> 
+            <div class="col-8">
+            <select id="select" name="selecp1" class="custom-select person2" style="width: 215px;">
+                <option value="1">Grandparent</option>
+                <option value="2">Great Grandparent</option>
+                <option value="3">2nd Great Grandparent</option>
+                <option value="4">3rd Great Grandparent</option>
+                <option value="5">4th Great Grandparent</option>
+                <option value="6">5th Great Grandparent</option>
+                <option value="7">6th Great Grandparent</option>
+                <option value="8">7th Great Grandparent</option>
+                <option value="9">8th Great Grandparent</option>
+                <option value="10">9th Great Grandparent</option>
+                <option value="11">10th Great Grandparent</option>
+            </select>
+            </div>
+        </div>
+        <p class="relationship" style="font-size: 18px; font-weight: 600;"></p>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script>
+        $(document).on('change','#select',function() {
+            const p1 = $('.person1').val();
+            const p2 = $('.person2').val();
+            $('.relationship').text(calc(p1,p2));
+        });
+        
+        function calc(p1, p2) {
+            var relationship = "You and your relative are siblings";
+            if (p1 == p2) {
+                if (p1 == 0) {
+                    relationship = "You and your relative are Siblings"
+                } else {
+                    relationship = "You and your relative are " + degree(p1) + " Cousins"
+                }
+            } else if (p1 == 0 && p2 > 0) {
+                var grandind = "";
+                if (p2 == 2) {
+                    grandind = "Grand"
+                } else if (p2 == 3) {
+                    grandind = "Great Grand"
+                } else if (p2 > 3) {
+                    grandind = degree(p2 - 2) + " Great Grand"
+                }
+                relationship = "Your relative is your " + grandind + " niece/nephew"
+            } else if (p1 > 0 && p2 == 0) {
+                var grandind = "";
+                if (p1 == 2) {
+                    grandind = "Grand"
+                } else if (p1 == 3) {
+                    grandind = "Great Grand"
+                } else if (p1 > 3) {
+                    grandind = degree(p1 - 2) + " Great Grand"
+                }
+                relationship = "You are the " + grandind + " niece/nephew of relative"
+            } else {
+                var lesser = 1;
+                var removed = 0;
+                if (p1 > p2) {
+                    lesser = p2;
+                    removed = p1 - p2
+                } else {
+                    lesser = p1;
+                    removed = p2 - p1
+                }
+                if (removed > 0) {
+                    relationship = "You and your relative are " + degree(lesser) + " cousins " + removed;
+                    if (removed == 1) relationship += " time removed";
+                    else relationship += " times removed"
+                } else relationship = "You and your relative are " + degree(lesser) + " cousins"
+            }
+            return relationship
+        }
+
+        function degree(n) {
+            var num = " " + n;
+            var suffix = "th";
+            if (num.length > 0) {
+                if (num.match(/11$/) || num.match(/12$/) || num.match(/13$/)) suffix = "th";
+                else if (num.charAt(num.length - 1) == '1') suffix = "st";
+                else if (num.charAt(num.length - 1) == '2') suffix = "nd";
+                else if (num.charAt(num.length - 1) == '3') suffix = "rd"
+            }
+            return n + suffix
+        }
+    </script>
+  </body>
+</html>
