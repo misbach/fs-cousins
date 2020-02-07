@@ -1,0 +1,15 @@
+<form>
+    <label>First Name</label> <input id="firstName">
+    <label>Last Name</label> <input id="lastName">
+    <input type="button" value="Search" onclick="doSearch();">
+</form>
+<script type="text/javascript">
+    function doSearch() {
+        var base = "https://www.familysearch.org/search/family-trees/results?count=20&query=";
+        var first = document.getElementById("firstName").value;
+        var last = document.getElementById("lastName").value;
+        var url = base+'%2Bgivenname%3A'+first+'~%20%2Bsurname%3A'+last;
+        window.open(url, '_blank');
+    }
+</script>
+  
