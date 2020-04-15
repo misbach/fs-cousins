@@ -1,0 +1,126 @@
+<img src="https://www.shotoftheyeagers.com/assets/images/header_background.png">
+<p>We are the Yeager family and you may know us from our channel on Youtube called Shot of The Yeagers. There are a total of 8 of us Yeagers! We have 6 kids, 5 girls and I boy. You can learn about each one of our children on their individual pages on this website! Check them out! We of course, think they are pretty awesome! We are a vlogging family.</p>
+<p>We love to video all of our adventures every day! We started vlogging in August of 2015, and let me tell you it has been a fun and amazing journey. Of course it has also been a lot of hard work and dedication. Our very first video ever posted was of us putting the kids to work. Wow, that video feels like it was a lifetime ago! We currently have made over 1,000 videos.</p>
+<p>We have learned so much and have had so much fun in the process of making all those videos! As of now, we have more than 3 million subscribers! That just blows us away!! We have enjoyed celebrating with our fans over the past 3 years. On our Youtube channel, Shot of the Yeagers we have celebrations for hitting different subscribers milestones! You should check it out if you haven’t already.</p>
+
+<h3>Are you related to us?</h3>
+<div class="related" style="display: none;">
+    <strong><p class="how"></p></strong>
+    <a class="primaryLink" target="_blank" rel="noopener noreferrer"><img src="" class="portrait" style="border-style: solid; border-width: 3px; border-color: #a5a5a5; width: 200px; height: 200px; border-radius: 50%;"></a>
+    <h4 class="name"></h4>
+    <p>(<span class="date"></span>) <span class="place"></span></p>
+</div>
+<a onclick="doit();">Download</a>
+<canvas width="650" height="650" id="canvas"></canvas>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://unpkg.com/fs-js-lite@2.x/dist/FamilySearch.min.js"></script>
+<script>
+       let IDs = ["KWZM-M19","KWC6-SVK","KWC6-SVG","KWC6-SVG","KWC6-SV8","245X-G1Z","2H2N-9BL","2HK1-C11","2Z9N-M4Z","2Z9N-MXF"];
+        // let IDs = ["KWZM-M19","2Z9N-MXF"];
+
+        let fs = new FamilySearch({
+            environment: 'production',
+            appKey: 'a02j000000KTRjpAAH',
+        //   redirectUri: 'https://beta.familysearch.org/en/blog/?p=47620',
+            redirectUri: 'http://localhost:5000/related.html',
+            saveAccessToken: true,
+            tokenCookie: 'FS_AUTH_TOKEN'
+        });
+
+        // Auto-login: Handle an OAuth2 state
+        var oauthResponseState = fs.oauthResponse(function(error, response) { });
+
+        // Login if not authenticated
+        if (!oauthResponseState && !fs.getAccessToken()) fs.oauthRedirect();
+        else {
+            fs.get("/platform/users/current", function(error, response) {
+                if (response.statusCode == 401) fs.oauthRedirect();
+                fs.user = response.data.users[0];
+                fs.platformHost = function() { return "https://www.familysearch.org" }
+
+                // Get PID meta
+                let people = [];
+                for (let i = 0; i < IDs.length; i++) {
+                    // Get person details
+                    let person = null;
+                    fs.get("/platform/tree/persons/"+IDs[i], function(err, rsp) {
+                        person = rsp.data.persons[0].display;
+                        person.id = rsp.data.persons[0].id;
+                        person.portrait = "https://api.familysearch.org/platform/tree/persons/"+IDs[i]+"/portrait?default=http://strategicsolutions.herokuapp.com/avatar.png&access_token="+fs.accessToken;
+
+                        // Get Relationship
+                        fs.get("/service/tree/tree-data/my-relatives/tree-graph-relation/"+fs.user.personId+"/"+IDs[i]+"?showApexCoParentEx=true", { headers: { Authorization: 'Bearer '+fs.accessToken }, }, function(err, rsp) {
+                            if (rsp.statusCode == 204) return;
+                            person.path = rsp.data.data.persons;
+                            person.relationship = rsp.data.data.relationType;
+                            people.push(person);
+                        });
+                    });
+                    // Display the relationship
+                    if (i >= IDs.length-1) display(people);
+                }
+            });
+        }
+
+        // Display closest relative
+        function display(relationships) {
+            setTimeout(function () {
+                if (relationships.length == 0) return $('.tree').text("No relationship found :-(");
+                $('.related').show();
+
+                // Find shortest one
+                let relative = relationships[0];
+                for (let i = 0; i < relationships.length; i++) {
+                    if (relationships[i].path.length < relative.path.length) relative = relationships[i];
+                }
+
+                $('.name').text(relative.name);
+                $('.portrait').attr("src","https://api.familysearch.org/platform/tree/persons/"+relative.id+"/portrait?access_token="+fs.accessToken)
+                $('.date').text(relative.lifespan);
+                $('.place').text(relative.birthPlace);
+                $('.primaryLink').attr("href","https://www.familysearch.org/tree/person/details/"+relative.id);
+                if (relative.relationship == "COMMON_ANCESTOR") $('.how').text("Yes, you are a cousin! Here is our common ancestor...");
+                else $('.how').text("Yes, you are a descendant! Here is our common ancestor...");
+
+                shareImg();
+            }, 2000);
+        }
+
+        function shareImg() {
+            // Generate sharable image
+            var canvas = document.getElementById("canvas");
+            var ctx = canvas.getContext("2d");
+            var img1 = loadImage("https://api.familysearch.org/platform/tree/persons/"+fs.user.personId+"/portrait?access_token="+fs.accessToken, main);
+            var img2 = loadImage('https://i.ibb.co/St8T8qS/yeagers650.png', main);
+            var imagesLoaded = 0;
+            function main() {
+                imagesLoaded += 1;
+                if(imagesLoaded == 2) {
+                    ctx.drawImage(img2, 0, 0);
+                    ctx.drawImage(img1, 365, 30);
+                    // ctx.font = "25px Verdana";
+                    // ctx.fillStyle = "white";
+                    // ctx.fillText(fs.user.displayName, 400, 260);
+                }
+            }
+        }
+
+        // Load Image
+        // http://www.thefutureoftheweb.com/blog/image-onload-isnt-being-called
+        function loadImage(src, onload) {
+            var img = new Image();
+            img.onload = onload;
+            // img.crossOrigin = "anonymous";
+            img.src = src;
+            return img;
+        }
+
+        function doit() {
+            var link = document.createElement('a');
+            link.download = 'filename.png';
+            link.href = document.getElementById("canvas").toDataURL();
+            link.click();
+        }
+    </script>
+    

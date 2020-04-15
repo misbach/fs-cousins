@@ -1,0 +1,20 @@
+<form>
+  <label>First Name</label> <input id="firstName">
+  <label>Last Name</label> <input id="lastName">
+  <label>Place</label> <input id="place">
+  <label>Year</label> <input id="year">
+  <input type="button" value="Search" onclick="doSearch();">
+</form>
+<script type="text/javascript">
+  function doSearch() {
+    var base = "https://familysearch.org/search/records/results?count=20&query=";
+    var first = document.getElementById("firstName").value;
+    var last = document.getElementById("lastName").value;
+    var place = document.getElementById("place").value;
+    var year = document.getElementById("year").value;
+    var collections = "(2125045%202126214%201921547%201878523%202761957%202489920%201807269%202568864%202202707%201858291%201968530%202513098%201968530%203010041%202996059%201807269)";
+    var url = base+'%2Bgivenname%3A"'+first+'"~%20%2Bsurname%3A"'+last+'"~%20%2Bany_place%3A"'+place+'"~%20%2Bany_year%3A'+year+'~&collection_id='+collections;
+    // window.location = url;
+    window.open(url, '_blank');
+  }
+</script>
