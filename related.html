@@ -10,12 +10,13 @@
     <h4 class="name"></h4>
     <p>(<span class="date"></span>) <span class="place"></span></p>
 </div>
+<canvas width="800" height="800" id="canvas"></canvas>
 
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script src="https://unpkg.com/fs-js-lite@2.x/dist/FamilySearch.min.js"></script>
 <script>
        let IDs = ["KWZM-M19","KWC6-SVK","KWC6-SVG","KWC6-SVG","KWC6-SV8","245X-G1Z","2H2N-9BL","2HK1-C11","2Z9N-M4Z","2Z9N-MXF"];
-    //    let IDs = ["KWZM-M19","2Z9N-MXF"];
+        // let IDs = ["KWZM-M19","2Z9N-MXF"];
 
         let fs = new FamilySearch({
             environment: 'production',
@@ -57,7 +58,7 @@
                     });
                     // Display the relationship
                     if (i >= IDs.length-1) display(people);
-                }                
+                }
             });
         }
 
@@ -80,6 +81,36 @@
                 $('.primaryLink').attr("href","https://www.familysearch.org/tree/person/details/"+relative.id);
                 if (relative.relationship == "COMMON_ANCESTOR") $('.how').text("Yes, you are a cousin! Here is our common ancestor...");
                 else $('.how').text("Yes, you are a descendant! Here is our common ancestor...");
+
+                shareImg();
             }, 2000);
         }
+
+        function shareImg() {
+            // Generate sharable image
+            var canvas = document.getElementById("canvas");
+            var ctx = canvas.getContext("2d");
+            var img1 = loadImage("https://api.familysearch.org/platform/tree/persons/"+fs.user.personId+"/portrait?access_token="+fs.accessToken, main);
+            var img2 = loadImage('https://i.ibb.co/DD0BV0y/yeagers650.png', main);
+            var imagesLoaded = 0;
+            function main() {
+                imagesLoaded += 1;
+                if(imagesLoaded == 2) {
+                    ctx.drawImage(img2, 0, 0);
+                    ctx.drawImage(img1, 365, 30);
+                    ctx.font = "25px Verdana";
+                    ctx.fillStyle = "white";
+                    ctx.fillText(fs.user.displayName, 400, 260);
+                }
+            }
+        }
+
+        // Load Image
+        // http://www.thefutureoftheweb.com/blog/image-onload-isnt-being-called
+        function loadImage(src, onload) {
+            var img = new Image();
+            img.onload = onload;
+            img.src = src;
+            return img;
+        }        
     </script>
