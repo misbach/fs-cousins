@@ -85,13 +85,13 @@
         var canvas = document.getElementById("canvas");
         var ctx = canvas.getContext("2d");
         var img1 = loadImage("https://api.familysearch.org/platform/tree/persons/"+fs.user.personId+"/portrait?access_token="+fs.accessToken, main);
-        var img2 = loadImage('https://i.ibb.co/St8T8qS/yeagers650.png', main);
+        var img2 = loadImage('https://i.ibb.co/YtL5Gmq/yeagers650.png', main);
         var imagesLoaded = 0;
         function main() {
             imagesLoaded += 1;
             if(imagesLoaded == 2) {
                 ctx.drawImage(img2, 0, 0);
-                ctx.drawImage(img1, 365, 30);
+                ctx.drawImage(img1, 416, 33);
                 // ctx.font = "25px Verdana";
                 // ctx.fillStyle = "white";
                 // ctx.fillText(fs.user.displayName, 400, 260);
