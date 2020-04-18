@@ -1,9 +1,15 @@
 <img src="https://www.shotoftheyeagers.com/assets/images/header_background.png">
+
 <p>We are the Yeager family and you may know us from our channel on Youtube called Shot of The Yeagers. There are a total of 8 of us Yeagers! We have 6 kids, 5 girls and I boy. You can learn about each one of our children on their individual pages on this website! Check them out! We of course, think they are pretty awesome! We are a vlogging family.</p>
 <p>We love to video all of our adventures every day! We started vlogging in August of 2015, and let me tell you it has been a fun and amazing journey. Of course it has also been a lot of hard work and dedication. Our very first video ever posted was of us putting the kids to work. Wow, that video feels like it was a lifetime ago! We currently have made over 1,000 videos.</p>
 <p>We have learned so much and have had so much fun in the process of making all those videos! As of now, we have more than 3 million subscribers! That just blows us away!! We have enjoyed celebrating with our fans over the past 3 years. On our Youtube channel, Shot of the Yeagers we have celebrations for hitting different subscribers milestones! You should check it out if you haven’t already.</p>
 
 <h3>Are you related to us?</h3>
+<p>This page will tell you if you are related to the Yeagers. To find out, you need to create an account at FamilySearch, find one of your deceased grand-parents in the Family Tree, connect yourself to them, then come back to this page, and we'll tell you if you are related to the Yeagers :-)</p>
+
+<p><a href="javascript:fs.oauthRedirect()">Click here to see if you are a Yeager cousin</a></p>
+
+
 <div class="related" style="display: none;">
     <strong><p class="how"></p></strong>
     <a class="primaryLink" target="_blank" rel="noopener noreferrer"><img src="" class="portrait" style="border-style: solid; border-width: 3px; border-color: #a5a5a5; width: 200px; height: 200px; border-radius: 50%;"></a>
@@ -29,8 +35,7 @@
     var oauthResponseState = fs.oauthResponse(function(error, response) { });
 
     // Login if not authenticated
-    if (!oauthResponseState && !fs.getAccessToken()) fs.oauthRedirect();
-    else {
+    if (oauthResponseState && fs.getAccessToken()) {
         fs.get("/platform/users/current", function(error, response) {
             if (response.statusCode == 401) fs.oauthRedirect();
             fs.user = response.data.users[0];
