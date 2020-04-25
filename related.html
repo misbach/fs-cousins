@@ -9,23 +9,27 @@
 
 <p><a href="javascript:fs.oauthRedirect()">Click here to see if you are a Yeager cousin</a></p>
 
-
-<div class="related" style="display: none;">
-    <strong><p class="how"></p></strong>
-    <a class="primaryLink" target="_blank" rel="noopener noreferrer"><img src="" class="portrait" style="border-style: solid; border-width: 3px; border-color: #a5a5a5; width: 200px; height: 200px; border-radius: 50%;"></a>
-    <h4><span class="name"></span> (<span class="date"></span>)</h4>
-    <p>Save this image below and share it on Instagram or Facebook.</p>
+<div class="steve" style="display: none;">
+    <p>You are a cousin to Steve! Click <a href="" target="_blank" class="primaryLink">here</a> to see our shared relative</p>
+    <img src="https://i.ibb.co/JmbQ5Vh/steve.jpg" style="border-radius: 50%; border-style: solid; border-width: 3px;">
+    <p style="margin-top: 50px;">Save this image below and share it on Instagram or Facebook.</p>
 </div>
+<div class="jamie" style="display: none;">
+    <p>You are a cousin to Jamie! Click <a href="" target="_blank" class="primaryLink">here</a> to see our shared relative</p>
+    <img src="https://i.ibb.co/fCPB7y0/jamie.jpg" style="border-radius: 50%; border-style: solid; border-width: 3px;">
+    <p style="margin-top: 50px;">Save this image below and share it on Instagram or Facebook.</p>
+</div>
+
 <canvas width="650" height="650" id="canvas"></canvas>
 
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script src="https://unpkg.com/fs-js-lite@2.x/dist/FamilySearch.min.js"></script>
 <script>
-    let IDs = ["KWZM-M19","KWC6-SVK","KWC6-SVG","KWC6-SVG","KWC6-SV8","245X-G1Z","2H2N-9BL","2HK1-C11"];
+    let IDs = ["KWZM-M19","KWC6-SVK","KWC6-SVG","KWC6-SV8","245X-G1Z","2H2N-9BL","2HK1-C11"];
     let fs = new FamilySearch({
         environment: 'production',
         appKey: 'a02j000000KTRjpAAH',
-    //   redirectUri: 'https://beta.familysearch.org/en/blog/?p=47620',
+        // redirectUri: 'https://beta.familysearch.org/en/blog/?p=47620',
         redirectUri: 'http://localhost:5000/related.html',
         saveAccessToken: true,
         tokenCookie: 'FS_AUTH_TOKEN'
@@ -67,20 +71,17 @@
     // Display closest relative
     function display(relationships) {
         if (relationships.length == 0) return $('.tree').text("No relationship found :-(");
-        $('.related').show();
-
+        
         // Find shortest one
         let relative = relationships[0];
         for (let i = 0; i < relationships.length; i++) {
             if (relationships[i].path.length < relative.path.length) relative = relationships[i];
         }
-
-        $('.name').text(relative.name);
-        $('.portrait').attr("src","https://api.familysearch.org/platform/tree/persons/"+relative.id+"/portrait?access_token="+fs.accessToken)
-        $('.date').text(relative.lifespan);
         $('.primaryLink').attr("href","https://www.familysearch.org/tree/person/details/"+relative.id);
-        if (relative.relationship == "COMMON_ANCESTOR") $('.how').text("Yes, you are a cousin! Here is the Yeager grand-parent you are related to...");
-        else $('.how').text("Yes, you are a descendant! Here is the Yeager grand-parent you are related to...");
+
+        // Show related Yeager (Steve or Jamie)
+        if (relative.id == "245X-G1Z" || relative.id == "2H2N-9BL" || relative.id == "2HK1-C11") $('.steve').show();
+        else $('.jamie').show();
 
         shareImg();
     }
