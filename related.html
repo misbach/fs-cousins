@@ -1,25 +1,35 @@
 <img src="https://www.shotoftheyeagers.com/assets/images/header_background.png">
+
 <p>We are the Yeager family and you may know us from our channel on Youtube called Shot of The Yeagers. There are a total of 8 of us Yeagers! We have 6 kids, 5 girls and I boy. You can learn about each one of our children on their individual pages on this website! Check them out! We of course, think they are pretty awesome! We are a vlogging family.</p>
 <p>We love to video all of our adventures every day! We started vlogging in August of 2015, and let me tell you it has been a fun and amazing journey. Of course it has also been a lot of hard work and dedication. Our very first video ever posted was of us putting the kids to work. Wow, that video feels like it was a lifetime ago! We currently have made over 1,000 videos.</p>
 <p>We have learned so much and have had so much fun in the process of making all those videos! As of now, we have more than 3 million subscribers! That just blows us away!! We have enjoyed celebrating with our fans over the past 3 years. On our Youtube channel, Shot of the Yeagers we have celebrations for hitting different subscribers milestones! You should check it out if you haven’t already.</p>
 
 <h3>Are you related to us?</h3>
-<div class="related" style="display: none;">
-    <strong><p class="how"></p></strong>
-    <a class="primaryLink" target="_blank" rel="noopener noreferrer"><img src="" class="portrait" style="border-style: solid; border-width: 3px; border-color: #a5a5a5; width: 200px; height: 200px; border-radius: 50%;"></a>
-    <h4><span class="name"></span> (<span class="date"></span>)</h4>
-    <p>Save this image below and share it on Instagram or Facebook.</p>
+<p>This page will tell you if you are related to the Yeagers. To find out, you need to create an account at FamilySearch, find one of your deceased grand-parents in the Family Tree, connect yourself to them, then come back to this page, and we'll tell you if you are related to the Yeagers :-)</p>
+
+<p><a href="javascript:fs.oauthRedirect()">Click here to see if you are a Yeager cousin</a></p>
+
+<div class="steve" style="display: none;">
+    <p>You are a cousin to Steve! Click <a href="" target="_blank" class="primaryLink">here</a> to see our shared relative</p>
+    <img src="https://i.ibb.co/JmbQ5Vh/steve.jpg" style="border-radius: 50%; border-style: solid; border-width: 3px;">
+    <p style="margin-top: 50px;">Save this image below and share it on Instagram or Facebook.</p>
 </div>
+<div class="jamie" style="display: none;">
+    <p>You are a cousin to Jamie! Click <a href="" target="_blank" class="primaryLink">here</a> to see our shared relative</p>
+    <img src="https://i.ibb.co/fCPB7y0/jamie.jpg" style="border-radius: 50%; border-style: solid; border-width: 3px;">
+    <p style="margin-top: 50px;">Save this image below and share it on Instagram or Facebook.</p>
+</div>
+
 <canvas width="650" height="650" id="canvas"></canvas>
 
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script src="https://unpkg.com/fs-js-lite@2.x/dist/FamilySearch.min.js"></script>
 <script>
-    let IDs = ["KWZM-M19","KWC6-SVK","KWC6-SVG","KWC6-SVG","KWC6-SV8","245X-G1Z","2H2N-9BL","2HK1-C11"];
+    let IDs = ["KWZM-M19","KWC6-SVK","KWC6-SVG","KWC6-SV8","245X-G1Z","2H2N-9BL","2HK1-C11"];
     let fs = new FamilySearch({
         environment: 'production',
         appKey: 'a02j000000KTRjpAAH',
-    //   redirectUri: 'https://beta.familysearch.org/en/blog/?p=47620',
+        // redirectUri: 'https://beta.familysearch.org/en/blog/?p=47620',
         redirectUri: 'http://localhost:5000/related.html',
         saveAccessToken: true,
         tokenCookie: 'FS_AUTH_TOKEN'
@@ -29,8 +39,7 @@
     var oauthResponseState = fs.oauthResponse(function(error, response) { });
 
     // Login if not authenticated
-    if (!oauthResponseState && !fs.getAccessToken()) fs.oauthRedirect();
-    else {
+    if (oauthResponseState && fs.getAccessToken()) {
         fs.get("/platform/users/current", function(error, response) {
             if (response.statusCode == 401) fs.oauthRedirect();
             fs.user = response.data.users[0];
@@ -62,20 +71,17 @@
     // Display closest relative
     function display(relationships) {
         if (relationships.length == 0) return $('.tree').text("No relationship found :-(");
-        $('.related').show();
-
+        
         // Find shortest one
         let relative = relationships[0];
         for (let i = 0; i < relationships.length; i++) {
             if (relationships[i].path.length < relative.path.length) relative = relationships[i];
         }
-
-        $('.name').text(relative.name);
-        $('.portrait').attr("src","https://api.familysearch.org/platform/tree/persons/"+relative.id+"/portrait?access_token="+fs.accessToken)
-        $('.date').text(relative.lifespan);
         $('.primaryLink').attr("href","https://www.familysearch.org/tree/person/details/"+relative.id);
-        if (relative.relationship == "COMMON_ANCESTOR") $('.how').text("Yes, you are a cousin! Here is the Yeager grand-parent you are related to...");
-        else $('.how').text("Yes, you are a descendant! Here is the Yeager grand-parent you are related to...");
+
+        // Show related Yeager (Steve or Jamie)
+        if (relative.id == "245X-G1Z" || relative.id == "2H2N-9BL" || relative.id == "2HK1-C11") $('.steve').show();
+        else $('.jamie').show();
 
         shareImg();
     }
@@ -85,13 +91,13 @@
         var canvas = document.getElementById("canvas");
         var ctx = canvas.getContext("2d");
         var img1 = loadImage("https://api.familysearch.org/platform/tree/persons/"+fs.user.personId+"/portrait?access_token="+fs.accessToken, main);
-        var img2 = loadImage('https://i.ibb.co/St8T8qS/yeagers650.png', main);
+        var img2 = loadImage('https://i.ibb.co/YtL5Gmq/yeagers650.png', main);
         var imagesLoaded = 0;
         function main() {
             imagesLoaded += 1;
             if(imagesLoaded == 2) {
                 ctx.drawImage(img2, 0, 0);
-                ctx.drawImage(img1, 365, 30);
+                ctx.drawImage(img1, 416, 33);
                 // ctx.font = "25px Verdana";
                 // ctx.fillStyle = "white";
                 // ctx.fillText(fs.user.displayName, 400, 260);
