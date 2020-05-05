@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Tita</title>
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css">
+	<script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"></script>
+	<style>
+		.logo { margin-top: 20px; margin-left: 15%; margin-bottom: 25px; }
+		.banner { background-image: url('/homelands/world.jpg'); background-repeat:no-repeat; background-size:cover; height: 500px; }
+		.bannerText { position: absolute; top: 170px; left: 100px; max-width: 600px; background-color: rgba(67, 142, 69, 0.6); color: #ffffff; padding: 20px 35px 20px 35px; text-shadow: 0px 2px gray; }
+		#mapid { height: 400px; width: 75%; margin: auto; }
+		.info { margin-top: 70px; text-align: center; margin-bottom: 70px; }
+		footer { height: 300px; background-color: #f7f7f7; text-align: center; margin-top: 50px; padding-top: 80px; font-size: 24px; color: #676767; }
+
+		.countries { margin-top: 50px; margin-bottom: 50px; }
+		.countryDesc { font-size: 30px; text-align: center; margin-bottom: 30px; }
+		.countryMap { height: 80px; }
+		.country { width: 15%; }
+		.countryList { display: flex; list-style: none; text-align: center; justify-content: center; }
+		.count { font-size: 40px; margin-top: 20px; }	  
+	</style>
+</head>
+<body>
+	<!-- Search -->
+	<div class="container info">
+	<p>Tita's surnames are blue in the map below. Enter your surname and they will show up in red.</p>
+	<div class="form-row justify-content-center">
+		<div class="col-auto">
+		<input type="text" class="form-control mb-2 name">
+		</div>
+		<div class="col-auto">
+		<button type="submit" class="btn btn-primary mb-2 search">Search</button>
+		</div>
+	</div>
+	</div>
+
+	<!-- Results -->
+	<div class="results">
+	<div class="countries" style="display: none;">
+		<p class="countryDesc">Your surname was found <span class="totalCount"></span> times in the following countries.</p>
+		<ul class="countryList"></ul>
+	</div>
+	<div id="mapid"></div>
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+	<script src="https://codepen.io/misbach/pen/doCKx.js"></script>
+	<script type="text/javascript">
+	// Create map
+	var map = L.map('mapid', {preferCanvas: true}).setView([15, 0], 2);
+	L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+		maxZoom: 18,
+		id: 'mapbox.streets',
+		accessToken: 'pk.eyJ1IjoibWlzYmFjaCIsImEiOiJjamZpcnZ0bXUwMHpyMzNwZmw3NzlzaGR1In0.I5SDAbWV7lnkaK_jCPNLQQ'
+	}).addTo(map);
+	let token = null;
+
+	// Populate map with pins
+	for (let i = 0; i < people.length; i++) {
+		// let portrait = 'https://api.familysearch.org/platform/tree/persons/'+people[i].pid+'/portrait?access_token='+token+'&default=https://www.familysearch.org/frontier/styleguide/icons/assets/icons/familysearch-account-xl.svg';
+		let portrait = "https://www.familysearch.org/frontier/styleguide/icons/assets/icons/familysearch-account-xl.svg";
+		L.circleMarker([people[i].lat, people[i].lon], {color: '#6860ec', radius: 5}).addTo(map).bindPopup('<a href="https://ancestors.familysearch.org/en/'+people[i].pid+'" target="_blank"><img width="64" src="'+portrait+'"><br />'+people[i].name+'<br />'+people[i].lifespan+'</a>');
+	}
+
+	// Name Search
+	$('.search').click(function() {
+		// Get tree results
+		let name = $('.name').val();
+		fetch("https://strategicsolutions.herokuapp.com/homelands/search?name="+name, {method: "get"})
+		.then(function(rsp) { return rsp.json() })
+		.then(function(obj) {
+			token = obj.token;
+			for (var i = 0; i < obj.entries.length; i++) {
+			let person = obj.entries[i].content.gedcomx.persons[0];
+			if (person.display.birthPlace) {
+				// Get lat/lon
+				fetch("https://api.familysearch.org/platform/places/search?count=1&q=name:"+encodeURI(person.display.birthPlace), {
+					headers: { Authorization: "Bearer "+obj.token, Accept: "application/json"}
+				})
+				.then(function(rsp) { return rsp.json() })
+				.then(function(obj) {
+					let lat = obj.entries[0].content.gedcomx.places[0].latitude;
+					let lon = obj.entries[0].content.gedcomx.places[0].longitude;
+					// Place push-pin
+					if (lat) {
+						let portrait = 'https://api.familysearch.org/platform/tree/persons/'+person.id+'/portrait?access_token='+token+'&default=https://www.familysearch.org/frontier/styleguide/icons/assets/icons/familysearch-account-xl.svg';
+						let birth = (person.display.birthDate) ? person.display.birthDate : "";
+						L.circleMarker([lat, lon], {color: '#e86666', radius: 5}).addTo(map).bindPopup('<a href="https://ancestors.familysearch.org/en/'+person.id+'" target="_blank"><img width="64" src="'+portrait+'"><br />'+person.display.name+'<br />'+birth+'</a>');
+					}
+				});
+			}
+			}
+
+			// Get Discovery Name info
+			fetch("https://www.familysearch.org/service/discovery/allaboutme/treesurnamecount/"+name, {method: "get", headers: { "Authorization": "Bearer "+obj.token}})
+			.then(function(rsp) { return rsp.json() })
+			.then(function(obj) {
+				$('.countries').show();
+				$('.countryList').empty();
+				$('.totalCount').text(obj.totalCount.toLocaleString()+" times ");
+				for (let i = 0; i < obj.countries.length; i++) {
+				const name = obj.countries[i].name;
+				const count = obj.countries[i].count.toLocaleString();
+				let code = obj.countries[i].code.toLowerCase();
+				if (code == "eng") code = "gbr";
+				if (code == "sct") code = "gbr";
+				if (code == "wal") code = "gbr";
+				if (code == "usa") continue; // Skip USA
+				$('.countryList').append('<li class="country"><a href="https://en.wikipedia.org/wiki/'+name+'" target="_blank"><img class="countryMap" src="https://restcountries.eu/data/'+code+'.svg"></a><br />'+name+'<br /><span class="count">'+count+'</span></li>')
+				}
+			});
+			
+		});
+	});
+
+	// Search on Enter key
+	$('.name').keypress(function(e) { if (e.which == 13) { $('.search').click() } });
+	</script>
+</body>
+</html>
