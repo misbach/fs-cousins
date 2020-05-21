@@ -1,14 +1,12 @@
-<img src="https://www.shotoftheyeagers.com/assets/images/header_background.png">
-
-<p>We are the Yeager family and you may know us from our channel on Youtube called Shot of The Yeagers. There are a total of 8 of us Yeagers! We have 6 kids, 5 girls and I boy. You can learn about each one of our children on their individual pages on this website! Check them out! We of course, think they are pretty awesome! We are a vlogging family.</p>
-<p>We love to video all of our adventures every day! We started vlogging in August of 2015, and let me tell you it has been a fun and amazing journey. Of course it has also been a lot of hard work and dedication. Our very first video ever posted was of us putting the kids to work. Wow, that video feels like it was a lifetime ago! We currently have made over 1,000 videos.</p>
-<p>We have learned so much and have had so much fun in the process of making all those videos! As of now, we have more than 3 million subscribers! That just blows us away!! We have enjoyed celebrating with our fans over the past 3 years. On our Youtube channel, Shot of the Yeagers we have celebrations for hitting different subscribers milestones! You should check it out if you haven’t already.</p>
-
-<h3>Are you related to us?</h3>
-<p>This page will tell you if you are related to the Yeagers. To find out, you need to create an account at FamilySearch, find one of your deceased grand-parents in the Family Tree, connect yourself to them, then come back to this page, and we'll tell you if you are related to the Yeagers :-)</p>
+<p>Hi! We’re the Yeagers. You may know us from our YouTube channel, Shot of the Yeagers. There are a total of eight of us in the SOTY family—two parents, five daughters, and one son—but we know our family is much bigger than that.</p>
+<p>In fact, it’s very possible that many of you are family! We’ve partnered with FamilySearch so we can see just how big our family is. Use this page to see if you might be a Yeager cousin!</p>
+<p>To see if we are related, either sign-in to your FamilySearch account or create one—don’t worry, it’s absolutely free! If you are just starting with FamilySearch, we recommend you <a href="https://www.familysearch.org/blog/en/how-to-start-a-family-tree/" target="_blank">fill out at least 4 generations on your family tree.</a></p>
+<p>FamilySearch will look at the <a href="https://www.familysearch.org/blog/en/online-family-tree/" target="_blank">shared Family Tree</a> to see if we have a <a href="https://www.familysearch.org/blog/en/cousin-chart/" target="_blank">common grandparent</a>, so the more information you add to the Family Tree, the more likely it will show we are related.</p>
+<p>Once you have your family tree set up, just click on the button below!</p>
 
 <center>
-    <button class="btn" onclick="fs.oauthRedirect()">Click here to see if you are a Yeager cousin</button>
+    <button class="btn areyou" onclick="fs.oauthRedirect()">Are you related to the Yeagers?</button>
+    <br />
 
     <div class="steve" style="display: none;">
         <h2>You are a cousin to Steve!</h2>
@@ -23,8 +21,16 @@
         <p style="margin-top: 50px;">Below is a graphic for you to share on Instagram #SOTYFam.</p>
     </div>
 
-    <canvas width="650" height="650" id="canvas"></canvas>
+    <canvas width="650" height="650" id="canvas" style="display: none;"></canvas>
+    <br />
+    <button style="margin-top: 15px; margin-bottom: 15px; display: none;" class="btn btn-primary download" onclick="download();">Download Image</button>
 </center>
+
+<div class="notFound" style="display: none;">
+    <h3>No relationship found</h3>
+    <p>Want to try again? Use the <a href="https://www.familysearch.org/blog/en/relatives/">Relatives around Me</a> feature on the FamilySearch mobile app to see if you and a friend are related—any time, anywhere.</p>
+    <p>Note: If you have few people in your family tree on FamilySearch, you may need to add more before you can find cousin connections. See this post on <a href="https://www.familysearch.org/blog/en/getting-started-shared-family-tree/">Connecting to the FamilySearch Shared Tree</a> for tips on adding relatives and filling out your family tree.</p>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script src="https://unpkg.com/fs-js-lite@2.x/dist/FamilySearch.min.js"></script>
@@ -34,6 +40,7 @@
         environment: 'production',
         appKey: 'a02j000000KTRjpAAH',
         // redirectUri: 'https://beta.familysearch.org/en/blog/?p=47620',
+        // redirectUri: 'https://www.familysearch.org/blog/en/yeagers-soty-family/',
         redirectUri: 'http://localhost:5000/related.html',
         saveAccessToken: true,
         tokenCookie: 'FS_AUTH_TOKEN'
@@ -59,6 +66,8 @@
                     .then((resp) => resp.json())
                     .then(function (rsp) {
                         if (rsp.status == 204) return;
+                        if (rsp.data.persons.length == 0) return;
+                        console.log(rsp);
                         person.path = rsp.data.persons;
                         person.name = rsp.data.persons[rsp.data.persons.length-1].name;
                         person.lifespan = rsp.data.persons[rsp.data.persons.length-1].lifespan;
@@ -74,7 +83,11 @@
 
     // Display closest relative
     function display(relationships) {
-        if (relationships.length == 0) return $('.tree').text("No relationship found :-(");
+        if (relationships.length == 0) {
+            console.log(relationships);
+            $('.notFound').show();
+            return
+        }
         
         // Find shortest one
         let relative = relationships[0];
@@ -86,6 +99,9 @@
         // Show related Yeager (Steve or Jamie)
         if (relative.id == "245X-G1Z" || relative.id == "2H2N-9BL" || relative.id == "2HK1-C11") $('.steve').show();
         else $('.jamie').show();
+        $('.download').show();
+        $('.areyou').hide();
+        $('#canvas').show();
 
         shareImg();
     }
@@ -95,13 +111,13 @@
         var canvas = document.getElementById("canvas");
         var ctx = canvas.getContext("2d");
         var img1 = loadImage("https://api.familysearch.org/platform/tree/persons/"+fs.user.personId+"/portrait?access_token="+fs.accessToken, main);
-        var img2 = loadImage('https://i.ibb.co/YtL5Gmq/yeagers650.png', main);
+        var img2 = loadImage('https://i.ibb.co/19QGzZ4/yeagers-blue.png', main);
         var imagesLoaded = 0;
         function main() {
             imagesLoaded += 1;
             if(imagesLoaded == 2) {
                 ctx.drawImage(img2, 0, 0);
-                ctx.drawImage(img1, 416, 33);
+                ctx.drawImage(img1, 417, 33);
                 // ctx.font = "25px Verdana";
                 // ctx.fillStyle = "white";
                 // ctx.fillText(fs.user.displayName, 400, 260);
@@ -114,8 +130,15 @@
     function loadImage(src, onload) {
         var img = new Image();
         img.onload = onload;
-        // img.crossOrigin = "anonymous";
+        img.crossOrigin = "anonymous";
         img.src = src;
         return img;
     }
+
+    function download() {
+		var link = document.createElement('a');
+		link.download = 'soty.png';
+		link.href = document.getElementById("canvas").toDataURL();
+		link.click();
+	}
 </script>
