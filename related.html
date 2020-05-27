@@ -26,7 +26,7 @@
     <button style="margin-top: 15px; margin-bottom: 15px; display: none;" class="btn btn-primary download" onclick="download();">Download Image</button>
 </center>
 
-<div class="notFound" style="display: none;">
+<div class="notFound" style="display: none; border-style: solid; border-width: 1px; padding: 15px; border-color: #737373; text-align: center;">
     <h3>No relationship found</h3>
     <p>Want to try again? Use the <a href="https://www.familysearch.org/blog/en/relatives/">Relatives around Me</a> feature on the FamilySearch mobile app to see if you and a friend are related—any time, anywhere.</p>
     <p>Note: If you have few people in your family tree on FamilySearch, you may need to add more before you can find cousin connections. See this post on <a href="https://www.familysearch.org/blog/en/getting-started-shared-family-tree/">Connecting to the FamilySearch Shared Tree</a> for tips on adding relatives and filling out your family tree.</p>
@@ -46,9 +46,6 @@
         tokenCookie: 'FS_AUTH_TOKEN'
     });
 
-    // Auto-login: Handle an OAuth2 state
-    var oauthResponseState = fs.oauthResponse(function(error, response) { });
-
     // Login if not authenticated
     fs.oauthResponse(function() {
         fs.get("/platform/users/current", function(error, response) {
@@ -61,21 +58,21 @@
             (async () => {
                 for (let i = 0; i < IDs.length; i++) {
                     let person = { id: IDs[i] };
-                    let url = "https://www.familysearch.org/service/tree/tree-data/my-relatives/tree-graph-relation/"+fs.user.personId+"/"+IDs[i]+"?showApexCoParentEx=true";
-                    promises.push(fetch(url, { headers: { 'Authorization': 'Bearer ' + fs.accessToken } })
-                    .then((resp) => resp.json())
+                    let url = "https://api.familysearch.org/platform/tree/my-relationships?pid="+IDs[i];
+                    promises.push(fetch(url, { headers: { 'Authorization': 'Bearer ' + fs.accessToken, 'Accept': 'Application/json' } })
+                    // .then((resp) => resp.json())
+                    .then(function(resp) {
+                        if (resp.status == 204) return null;
+                        else return resp.json();
+                    })
                     .then(function (rsp) {
-                        if (rsp.status == 204) return;
-                        if (rsp.data.persons.length == 0) return;
-                        console.log(rsp);
-                        person.path = rsp.data.persons;
-                        person.name = rsp.data.persons[rsp.data.persons.length-1].name;
-                        person.lifespan = rsp.data.persons[rsp.data.persons.length-1].lifespan;
-                        person.relationship = rsp.data.relationType;
+                        if (rsp == null) return;
+                        person.path = rsp.persons;
                         people.push(person);
                     }));
                 }
                 await Promise.all(promises);
+                $('#canvas').show();
                 display(people);
             })();
         });
@@ -84,7 +81,6 @@
     // Display closest relative
     function display(relationships) {
         if (relationships.length == 0) {
-            console.log(relationships);
             $('.notFound').show();
             return
         }
@@ -101,32 +97,34 @@
         else $('.jamie').show();
         $('.download').show();
         $('.areyou').hide();
-        $('#canvas').show();
 
         shareImg();
     }
 
     function shareImg() {
-        // Generate sharable image
-        var canvas = document.getElementById("canvas");
-        var ctx = canvas.getContext("2d");
-        var img1 = loadImage("https://api.familysearch.org/platform/tree/persons/"+fs.user.personId+"/portrait?access_token="+fs.accessToken, main);
-        var img2 = loadImage('https://i.ibb.co/19QGzZ4/yeagers-blue.png', main);
-        var imagesLoaded = 0;
-        function main() {
-            imagesLoaded += 1;
-            if(imagesLoaded == 2) {
-                ctx.drawImage(img2, 0, 0);
-                ctx.drawImage(img1, 417, 33);
-                // ctx.font = "25px Verdana";
-                // ctx.fillStyle = "white";
-                // ctx.fillText(fs.user.displayName, 400, 260);
+        // Determine if user has portrait (For some reason wordpress strips off anything after "&" in the portrait url)
+        let portrait = "https://i.ibb.co/sCzPDw7/p.png";
+        fetch("https://api.familysearch.org/platform/tree/persons/"+fs.user.personId+"/portrait?access_token="+fs.accessToken)
+        .then(function(resp) {
+            if (resp.status != 204) portrait = "https://api.familysearch.org/platform/tree/persons/"+fs.user.personId+"/portrait?access_token="+fs.accessToken;
+
+            // Generate sharable image
+            var canvas = document.getElementById("canvas");
+            var ctx = canvas.getContext("2d");
+            var img1 = loadImage(portrait, main);
+            var img2 = loadImage('https://i.ibb.co/x6gGmkr/Yeagers-FINAL.png', main);
+            var imagesLoaded = 0;
+            function main() {
+                imagesLoaded += 1;
+                if(imagesLoaded == 2) {
+                    ctx.drawImage(img2, 0, 0);
+                    ctx.drawImage(img1, 422, 26, 200, 200 * img1.height / img1.width );
+                }
             }
-        }
+        });
     }
 
     // Load Image
-    // http://www.thefutureoftheweb.com/blog/image-onload-isnt-being-called
     function loadImage(src, onload) {
         var img = new Image();
         img.onload = onload;
