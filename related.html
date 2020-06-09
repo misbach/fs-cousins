@@ -5,7 +5,7 @@
 <p>Once you have your family tree set up, just click on the button below!</p>
 
 <center>
-    <button class="btn areyou" onclick="fs.oauthRedirect()">Are you related to the Yeagers?</button>
+    <button class="btn areyou" onclick="AuthRedirect()">Are you related to the Yeagers?</button>
     <br />
 
     <div class="steve" style="display: none;">
@@ -46,6 +46,13 @@
         tokenCookie: 'FS_AUTH_TOKEN'
     });
 
+    function AuthRedirect() {
+        // Trigger analytics
+        utag.link({'event_name': 'click_action','link_name': 'Blog: Article: Are You Related to the Yeagers'});
+        // Auth
+        fs.oauthRedirect();
+    }
+
     // Login if not authenticated
     fs.oauthResponse(function() {
         fs.get("/platform/users/current", function(error, response) {
@@ -74,6 +81,9 @@
                 await Promise.all(promises);
                 $('#canvas').show();
                 display(people);
+
+                // Trigger analytics
+                utag.link({'event_name': 'click_action','link_name': 'Blog: Article: Are You Related to the Yeagers, rendered'});
             })();
         });
     });
@@ -139,5 +149,8 @@
 		link.download = 'soty.png';
 		link.href = document.getElementById("canvas").toDataURL();
 		link.click();
+
+        // Trigger analytics
+        utag.link({'event_name': 'click_action','link_name': 'Blog: Article: Are You Related to the Yeagers, download'});
 	}
 </script>
