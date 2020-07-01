@@ -1,9 +1,6 @@
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"></script>
 
 <center>
-	<p style="text-align: center;">Tita's surnames are blue in the map below. Enter your surname and they will show up in red.</p>
 	<div class="form-row justify-content-center">
 		<div class="col-auto">
 			<input type="text" class="form-control mb-2 name">
@@ -13,74 +10,37 @@
 		</div>
 	</div>
 
-	<div id="mapid" style="height: 450px;"></div>
-
-	<style>
-		.countryMap { height: 80px; margin-right: 30px; }
-	</style>
+	<style>.countryMap { height: 80px; margin-right: 30px; }</style>
+	<div class="info" style="display: none;">Você e o Tita estão conectados! Vocês compartilham sobrenomes dos mesmos países. Selecione uma bandeira e compartilhe o seu meme.</div>
 	<ul class="flags" style="margin-top: 30px; display: flex; list-style: none; text-align: center; justify-content: center;"></ul>
 
 	<p>
-		<button style="margin-top: 50px; display: none;" class="btn btn-primary download" onclick="download();">Download Image</button>
+		<button style="display: none;" class="btn btn-primary download" onclick="download();">Download Image</button>
 	</p>
 	<canvas  width="650" height="650" id="canvas"></canvas>
-	<div>Display a different flag in the image by clicking on a different flag above.</div>
 </center>
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-<script src="https://codepen.io/misbach/pen/doCKx.js"></script>
 <script type="text/javascript">
-	// Create map
-	var map = L.map('mapid', {preferCanvas: true}).setView([15, 0], 2);
-	L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-		maxZoom: 18,
-		id: 'mapbox.streets',
-		accessToken: 'pk.eyJ1IjoibWlzYmFjaCIsImEiOiJjamZpcnZ0bXUwMHpyMzNwZmw3NzlzaGR1In0.I5SDAbWV7lnkaK_jCPNLQQ'
-	}).addTo(map);
-	let token = null;
-
-	// Populate map with JSON list of pins
-	for (let i = 0; i < people.length; i++) {
-		// let portrait = 'https://api.familysearch.org/platform/tree/persons/'+people[i].pid+'/portrait?access_token='+token+'&default=https://www.familysearch.org/frontier/styleguide/icons/assets/icons/familysearch-account-xl.svg';
-		let portrait = "https://www.familysearch.org/frontier/styleguide/icons/assets/icons/familysearch-account-xl.svg";
-		L.circleMarker([people[i].lat, people[i].lon], {color: '#6860ec', radius: 5}).addTo(map).bindPopup('<a href="https://ancestors.familysearch.org/en/'+people[i].pid+'" target="_blank"><img width="64" src="'+portrait+'"><br />'+people[i].name+'<br />'+people[i].lifespan+'</a>');
-	}
-
 	// Name Search
 	$('.search').click(function() {
+		$('.flags').empty();
+		$('.info').hide();
+		$('.download').hide();
+
 		// Get tree results
 		let name = $('.name').val();
 		fetch("https://strategicsolutions.herokuapp.com/homelands/search?name="+name, {method: "get"})
 		.then(function(rsp) { return rsp.json() })
 		.then(function(obj) {
 			token = obj.token;
-			for (var i = 0; i < obj.entries.length; i++) {
-				let person = obj.entries[i].content.gedcomx.persons[0];
-				if (person.display.birthPlace) {
-					// Get lat/lon
-					let url = "https://api.familysearch.org/platform/places/search?q=name:"+encodeURI(person.display.birthPlace)+"&count=1";
-					fetch(url, { headers: { Authorization: "Bearer "+obj.token, Accept: "application/json" } })
-					.then(function(rsp) { return rsp.json() })
-					.then(function(obj) {
-						let lat = obj.entries[0].content.gedcomx.places[0].latitude;
-						let lon = obj.entries[0].content.gedcomx.places[0].longitude;
-						// Place push-pin
-						if (lat) {
-							let portrait = 'https://api.familysearch.org/platform/tree/persons/'+person.id+'/portrait?access_token='+token+'&default=https://www.familysearch.org/frontier/styleguide/icons/assets/icons/familysearch-account-xl.svg';
-							let birth = (person.display.birthDate) ? person.display.birthDate : "";
-							L.circleMarker([lat, lon], {color: '#e86666', radius: 5}).addTo(map).bindPopup('<a href="https://ancestors.familysearch.org/en/'+person.id+'" target="_blank"><img width="64" src="'+portrait+'"><br />'+person.display.name+'<br />'+birth+'</a>');
-						}
-					});
-				}
-			}
 
 			// Get Discovery Name info
 			fetch("https://www.familysearch.org/service/discovery/allaboutme/treesurnamecount/"+name, {method: "get", headers: { "Authorization": "Bearer "+obj.token}})
 			.then(function(rsp) { return rsp.json() })
 			.then(function(obj) {
-				// let countries = ["prt", "mex", "ecu", "ury", "ago", "esp", "lbn", "ven", "arg"];
 				let countries = [
 					{ "code": "prt", "flag": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_Portugal.svg" },
 					{ "code": "mex", "flag": "https://upload.wikimedia.org/wikipedia/commons/f/fc/Flag_of_Mexico.svg" },
@@ -114,7 +74,7 @@
 				if (flag) {
 					shareImg(homeland, flag);
 				} else {
-					alert("Sorry you do not share an ancestral homeland with Tita :-(");
+					alert("Infelizmente este sobrenome não compartilha dos mesmos países que o do Tita.");
 				}
 			});
 		});
@@ -148,6 +108,7 @@
 			}
 		}
 		$('.download').show();
+		$('.info').show();
 	}
 
 	// Load Image
