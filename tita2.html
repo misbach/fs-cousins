@@ -6,32 +6,50 @@
 			<input type="text" class="form-control mb-2 name">
 		</div>
 		<div class="col-auto">
-			<button type="submit" class="btn btn-primary mb-2 search">Search</button>
+			<button type="submit" class="btn btn-primary mb-2 search">Pesquisar</button>
 		</div>
 	</div>
 
 	<style>.countryMap { height: 80px; margin-right: 30px; }</style>
-	<div class="info" style="display: none;">Você e o Tita estão conectados! Vocês compartilham sobrenomes dos mesmos países. Selecione uma bandeira e compartilhe o seu meme.</div>
+	<div class="info1" style="display: none;">Você e o Tita estão conectados! Vocês compartilham sobrenomes dos mesmos países. Selecione uma bandeira e compartilhe o seu meme.</div>
+	<div class="info2" style="display: none;">Infelizmente este sobrenome não compartilha dos mesmos países que o do Tita. Tente outro sobrenome ou compartilhe este link com seus amigos para que eles vejam se tem conexões.</div>
 	<ul class="flags" style="margin-top: 30px; display: flex; list-style: none; text-align: center; justify-content: center;"></ul>
 
 	<p>
-		<button style="display: none;" class="btn btn-primary download" onclick="download();">Download Image</button>
+		<button style="display: none;" class="btn btn-primary download" onclick="display();">Baixar Imagem</button>
 	</p>
-	<canvas  width="650" height="650" id="canvas"></canvas>
+	<canvas id="canvas" onclick="display();"></canvas>
+
 </center>
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script type="text/javascript">
+	// Set canvas height
+	let size = $('article').width();
+	if (!size) size = 650;
+	var canvas = document.getElementById('canvas');
+	canvas.width = size;
+	canvas.height = size;
+
+	// Get query param
+	$( document ).ready(function() {
+		let name = new URLSearchParams(window.location.search).get('name');
+		$('.name').val(name);
+		if (name) $('.search').click();
+	});
+
 	// Name Search
 	$('.search').click(function() {
 		$('.flags').empty();
-		$('.info').hide();
+		$('.info1').hide();
+		$('.info2').hide();
 		$('.download').hide();
 
-		// Get tree results
 		let name = $('.name').val();
+
+		// Get tree results
 		fetch("https://strategicsolutions.herokuapp.com/homelands/search?name="+name, {method: "get"})
 		.then(function(rsp) { return rsp.json() })
 		.then(function(obj) {
@@ -39,7 +57,11 @@
 
 			// Get Discovery Name info
 			fetch("https://www.familysearch.org/service/discovery/allaboutme/treesurnamecount/"+name, {method: "get", headers: { "Authorization": "Bearer "+obj.token}})
-			.then(function(rsp) { return rsp.json() })
+			.then(function(rsp) {
+				// Handle a 204 response on a surname with zero results
+				if (rsp.status == 204) return { totalCount: 0, countries: [] };
+				return rsp.json();
+			})
 			.then(function(obj) {
 				let countries = [
 					{ "code": "prt", "flag": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_Portugal.svg" },
@@ -73,8 +95,13 @@
 				}
 				if (flag) {
 					shareImg(homeland, flag);
+					$('.info1').text("Você e o Tita estão conectados! Vocês compartilham sobrenomes dos mesmos países. Selecione uma bandeira e compartilhe o seu meme.");
+					$('.info1').show();
+					$('#canvas').show();
 				} else {
-					alert("Infelizmente este sobrenome não compartilha dos mesmos países que o do Tita.");
+					$('.info2').html("Infelizmente este sobrenome não compartilha dos mesmos países que o do Tita. Tente outro sobrenome ou compartilhe <a href=\"https://www.familysearch.org/blog/pt/tita/\">este link</a> com seus amigos para que eles vejam se tem conexões.");
+					$('.info2').show();
+					$('#canvas').hide();
 				}
 			});
 		});
@@ -90,25 +117,26 @@
 	function shareImg(name, flag) {
 		var canvas = document.getElementById("canvas");
 		var ctx = canvas.getContext("2d");
-		// var img1 = loadImage("https://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_Portugal.svg", main);
 		var img1 = loadImage(flag, main);
-		var img2 = loadImage('https://i.ibb.co/1TD7LZ6/Tita1650.png', main);
+		// var img2 = loadImage('https://i.ibb.co/1TD7LZ6/Tita1650.png', main);
+		var img2 = loadImage('https://i.ibb.co/4dnRRGW/tita.jpg', main);
 		var imagesLoaded = 0;
 		function main() {
 			imagesLoaded += 1;
 			if(imagesLoaded == 2) {
-				ctx.drawImage(img2, 0, 0);
-				ctx.drawImage(img1, 400, 140, 200, 200 * img1.height / img1.width );
-				ctx.font = "30px Verdana";
-				ctx.fillStyle = "white";
+				ctx.drawImage(img2, 0, 0, size, size);
+				// ctx.drawImage(img1, 120, 85, 150, 150 * img1.height / img1.width );
+				ctx.drawImage(img1, size*.2, size*.15, size*.2, size*.2 * img1.height / img1.width );
+				ctx.font = "15px Verdana";
+				ctx.fillStyle = "black";
 				ctx.textAlign = "center";
-				ctx.fillText("Tita and "+$('.name').val(), 325, 40);
-				ctx.fillText("Share the same ancestral homeland", 325, 85);
-				ctx.fillText(name, 500, 305);
+				// ctx.fillText("Tita and "+$('.name').val(), 325, 40);
+				// ctx.fillText("Share the same ancestral homeland", 325, 85);
+				// ctx.fillText(name, 500, 305);
+				ctx.fillText(name, size*.3, size*.315);
 			}
 		}
 		$('.download').show();
-		$('.info').show();
 	}
 
 	// Load Image
@@ -124,7 +152,19 @@
 		var link = document.createElement('a');
 		link.download = 'tita.png';
 		link.href = document.getElementById("canvas").toDataURL();
+		link.type = "image/png";
 		link.click();
+	}
+
+	// Display image full screen
+	function display() {
+		var canvas = document.getElementById('canvas');
+		var dataURL = canvas.toDataURL();
+		var img = document.createElement('img');
+		img.src = dataURL;
+		img.style.width = "100%";
+		document.getElementsByTagName('body')[0].innerHTML = '';
+		document.getElementsByTagName('body')[0].appendChild(img);
 	}
 
 	// Search on Enter key
