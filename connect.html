@@ -1,0 +1,85 @@
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+<center>
+	<div class="custom-file col-4 mb-2">
+		<input type="file" class="custom-file-input" id="file" name="files[]">
+		<label class="custom-file-label" for="customFile" style="color: #6a6a6b;">Upload a photo</label>
+	</div>
+
+	<div>
+		<button style="display: none;" class="btn btn-primary download" onclick="download();">Download</button>
+	</div>
+	<div>
+		<canvas id="canvas" onclick="display();"></canvas>
+	</div>
+</center>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+	// Set canvas height
+	let size = $('article').width();
+	if (!size) size = 650;
+	var canvas = document.getElementById('canvas');
+	canvas.width = size;
+	canvas.height = size;
+
+	// Upload listener
+	document.getElementById('file').onchange = function(e) {
+		var img = new Image();
+		img.onload = draw;
+		img.onerror = function (e) { alert("There seems to be a problem with your image.") };
+		img.src = URL.createObjectURL(this.files[0]);
+	};
+
+	function draw() {
+		const userImg = this;
+		let scale = 200 / userImg.height;
+
+		var canvas = document.getElementById('canvas');
+		var ctx = canvas.getContext('2d');
+
+		// Load template image
+		// var img = loadImage('https://i.ibb.co/BjPD5hM/CREATOR-gd-jpeg-v1-0-using-IJG-JPEG-v62-quality-82.jpg', main);
+		var img = loadImage('https://i.ibb.co/cCQzfyY/CREATOR-gd-jpeg-v1-0-using-IJG-JPEG-v62-quality-82.jpg', main);
+		function main() {
+			// Put template on canvas
+			ctx.drawImage(img, 0, 0, size, size);
+
+			// Put uploaded image on canvas
+			ctx.drawImage(userImg, 10, 10, userImg.width * scale, userImg.height * scale);
+		}
+		$('.download').show();
+	}
+
+	// Load Image from URL
+	function loadImage(src, onload) {
+		var img = new Image();
+		img.onload = onload;
+		img.crossOrigin = "anonymous";
+		img.src = src;
+		return img;
+	}
+
+	// Download image to filesystem
+	function download() {
+		var link = document.createElement('a');
+		link.download = 'connections.png';
+		link.href = document.getElementById("canvas").toDataURL();
+		link.type = "image/png";
+		link.click();
+	}
+
+	// Display image full screen
+	function display() {
+		var canvas = document.getElementById('canvas');
+		var dataURL = canvas.toDataURL();
+		var img = document.createElement('img');
+		img.src = dataURL;
+		img.style.width = "100%";
+		document.getElementsByTagName('body')[0].innerHTML = '';
+		// TODO: append go back button
+		document.getElementsByTagName('body')[0].appendChild(img);
+	}
+</script>
