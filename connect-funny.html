@@ -1,18 +1,20 @@
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Mansalva&display=swap" rel="stylesheet">
+<span style="font-family: 'Mansalva', cursive;">&nbsp;</span>
+	<div class="col-4 mb-2">
+		<input type="text" class="form-control" id="name" maxlength="35" placeholder="photo title">
+	</div>
 
-<center>
-	<div class="custom-file col-4 mb-2">
+    <div class="custom-file col-4 mb-2">
 		<input type="file" class="custom-file-input" id="file" name="files[]">
-		<label class="custom-file-label" for="customFile" style="color: #6a6a6b;">Upload a photo</label>
-	</div>
-
-	<div>
-		<button style="display: none;" class="btn btn-primary download" onclick="download();">Download</button>
+		<label class="custom-file-label" for="customFile" style="color: #6a6a6b;">Click here to upload photo</label>
 	</div>
 	<div>
-		<canvas id="canvas" onclick="display();"></canvas>
+		<canvas id="canvas" onclick="display()"></canvas>
 	</div>
-</center>
+	<div class="share" style="display: none;">
+		<p><button class="btn btn-primary download" onclick="download();">Download</button></p>
+	</div>
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
@@ -26,39 +28,46 @@
 	canvas.height = size;
 
 	// Upload listener
+	var userImg = new Image();
 	document.getElementById('file').onchange = function(e) {
-		var img = new Image();
-		img.onload = draw;
-		img.onerror = function (e) { alert("There seems to be a problem with your image.") };
-		img.src = URL.createObjectURL(this.files[0]);
+		userImg.onload = draw;
+		userImg.onerror = function (e) { alert("There seems to be a problem with your image.") };
+		userImg.src = URL.createObjectURL(this.files[0]);
 	};
 
 	function draw() {
-		const userImg = this;
-		let scale = 200 / userImg.height;
+		let name = $('#name').val();
+		let scale = 440 / userImg.width; // Set desired width
+		let indent = (size - (userImg.width * scale)) / 2;
 
 		var canvas = document.getElementById('canvas');
 		var ctx = canvas.getContext('2d');
 
 		// Load template image
-		// var img = loadImage('https://i.ibb.co/BjPD5hM/CREATOR-gd-jpeg-v1-0-using-IJG-JPEG-v62-quality-82.jpg', main);
-		var img = loadImage('https://i.ibb.co/cCQzfyY/CREATOR-gd-jpeg-v1-0-using-IJG-JPEG-v62-quality-82.jpg', main);
+		let img = loadImage("https://i.imgur.com/DJ24vvO.png", main);
+
 		function main() {
 			// Put template on canvas
 			ctx.drawImage(img, 0, 0, size, size);
 
 			// Put uploaded image on canvas
-			ctx.drawImage(userImg, 10, 10, userImg.width * scale, userImg.height * scale);
-		}
-		$('.download').show();
+			ctx.drawImage(userImg, 80, 100, userImg.width * scale, userImg.height * scale);
+
+			ctx.font = "40px Mansalva";
+			ctx.textAlign = "center";
+			ctx.fillStyle = "#dcaa98";
+			ctx.fillText(name, 300, 515);
+        }
+		$('.share').show();
 	}
 
-	// Load Image from URL
+	// Load Image from URL so you don't get: "Failed to execute 'toDataURL' on 'HTMLCanvasElement': Tainted canvases may not be exported."
 	function loadImage(src, onload) {
 		var img = new Image();
 		img.onload = onload;
 		img.crossOrigin = "anonymous";
 		img.src = src;
+		img.draggable = true;
 		return img;
 	}
 
@@ -79,7 +88,6 @@
 		img.src = dataURL;
 		img.style.width = "100%";
 		document.getElementsByTagName('body')[0].innerHTML = '';
-		// TODO: append go back button
 		document.getElementsByTagName('body')[0].appendChild(img);
 	}
 </script>

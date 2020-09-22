@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+</head>
+<body>
+    <canvas id="canvas" width=650 height=650 style="border:1px solid #cccccc;"></canvas>
+
+    <script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
+    <script>
+            let img = new Image();
+            img.onload = function() { ctx.drawImage(img, 0,0) };
+            img.src = "https://i.ibb.co/vL3dDdw/recipe.jpg";
+
+            let canvas = document.getElementById("canvas");
+            let ctx = canvas.getContext("2d");
+            let canvasOffset = $("#canvas").offset();
+            let offsetX = canvasOffset.left;
+            let offsetY = canvasOffset.top;
+            let canvasWidth = canvas.width;
+            let canvasHeight = canvas.height;
+            let isDragging = false;
+
+            function handleMouseDown(e) {
+                canMouseX=parseInt(e.clientX-offsetX);
+                canMouseY=parseInt(e.clientY-offsetY);
+                // set the drag flag
+                isDragging=true;
+            }
+
+            function handleMouseUp(e) {
+                canMouseX=parseInt(e.clientX-offsetX);
+                canMouseY=parseInt(e.clientY-offsetY);
+                // clear the drag flag
+                isDragging=false;
+            }
+
+            function handleMouseOut(e) {
+                canMouseX=parseInt(e.clientX-offsetX);
+                canMouseY=parseInt(e.clientY-offsetY);
+                // user has left the canvas, so clear the drag flag
+                //isDragging=false;
+            }
+
+            function handleMouseMove(e) {
+                canMouseX=parseInt(e.clientX-offsetX);
+                canMouseY=parseInt(e.clientY-offsetY);
+                // if the drag flag is set, clear the canvas and draw the image
+                if(isDragging){
+                    ctx.clearRect(0,0,canvasWidth,canvasHeight);
+                    ctx.drawImage(img,canMouseX-128/2,canMouseY-120/2,128,120);
+                }
+            }
+
+            $("#canvas").mousedown(function(e) { handleMouseDown(e) });
+            $("#canvas").mousemove(function(e) { handleMouseMove(e) });
+            $("#canvas").mouseup(function(e) { handleMouseUp(e) });
+            $("#canvas").mouseout(function(e) { handleMouseOut(e) });
+    </script>
+</body>
+</html>

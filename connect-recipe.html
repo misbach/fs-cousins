@@ -1,0 +1,124 @@
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@600&display=swap" rel="stylesheet">
+<span style="font-family: 'Source Sans Pro', sans-serif;">&nbsp;</span>
+
+	<div>
+		<style>
+			label { margin-right: 20px; }
+			label img { height: 80px; margin-bottom: 5px; }
+			h1 { margin-top: 40px; }
+		</style>
+		<h1>Step 1: Choose Template</h1>
+		<label class="radio">
+			<img src="https://i.imgur.com/LQc5ELK.png">
+			<br /><input type="radio" id="7genfan" name="template" value="https://i.imgur.com/LQc5ELK.png" checked=""> Forest
+		</label>
+		<label class="radio">
+			<img src="https://i.imgur.com/AG3idxO.png">
+			<br /><input type="radio" id="7genfanbw" name="template" value="https://i.imgur.com/AG3idxO.png"> Mustard
+		</label>
+		<label class="radio">
+			<img src="https://i.imgur.com/v9QlE1L.png">
+			<br /><input type="radio" id="7genfanbw" name="template" value="https://i.imgur.com/v9QlE1L.png"> Squash
+		</label>
+		<label class="radio">
+			<img src="https://i.imgur.com/tiMQ4P4.png">
+			<br /><input type="radio" id="7genfanbw" name="template" value="https://i.imgur.com/tiMQ4P4.png"> Pumpkin
+		</label>
+	</div>
+
+	<h1>Step 2: Name of Recipe</h1>
+	<div class="col-4 mb-2">
+		<input type="text" class="form-control" id="name" maxlength="30" aria-describedby="emailHelp" placeholder="Name of recipe">
+	</div>
+
+	<h1>Step 3: Upload Photo</h1>
+	<div class="custom-file col-4 mb-2">
+		<input type="file" class="custom-file-input" id="file" name="files[]">
+		<label class="custom-file-label" for="customFile" style="color: #6a6a6b;">Click here to upload photo</label>
+	</div>
+	<div>
+		<canvas id="canvas" onclick="display()"></canvas>
+	</div>
+	<div class="share" style="display: none;">
+		<h1>Step 4: Download & Share</h1>
+		<p><button class="btn btn-primary download" onclick="download();">Download</button></p>
+	</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+	// Set canvas height
+	let size = $('article').width();
+	if (!size) size = 650;
+	var canvas = document.getElementById('canvas');
+	canvas.width = size;
+	canvas.height = size;
+
+	// Upload listener
+	var userImg = new Image();
+	document.getElementById('file').onchange = function(e) {
+		userImg.onload = draw;
+		userImg.onerror = function (e) { alert("There seems to be a problem with your image.") };
+		userImg.src = URL.createObjectURL(this.files[0]);
+	};
+
+	function draw() {
+		let name = $('#name').val();
+		let scale = 404 / userImg.height; // Set desired height ie 325
+		let indent = (size - (userImg.width * scale)) / 2;
+
+		var canvas = document.getElementById('canvas');
+		var ctx = canvas.getContext('2d');
+
+		// Load template image
+		let img = loadImage($('input[name=template]:checked').val(), main);
+
+		function main() {
+			// Put template on canvas
+			ctx.drawImage(img, 0, 0, size, size);
+
+			// Put uploaded image on canvas
+			console.log(canvas.width, userImg.width);
+			ctx.drawImage(userImg, canvas.width / 2 - (userImg.width * scale)/ 2, 164, userImg.width * scale, userImg.height * scale);
+
+			ctx.font = "45px Source Sans Pro";
+			ctx.textAlign = "center";
+			ctx.fillStyle = "#ffffff";
+			ctx.fillText(name, size/2, 135);
+		}
+		$('.share').show();
+	}
+
+	// Load Image from URL so you don't get: "Failed to execute 'toDataURL' on 'HTMLCanvasElement': Tainted canvases may not be exported."
+	function loadImage(src, onload) {
+		var img = new Image();
+		img.onload = onload;
+		img.crossOrigin = "anonymous";
+		img.src = src;
+		img.draggable = true;
+		return img;
+	}
+
+	// Download image to filesystem
+	function download() {
+		var link = document.createElement('a');
+		link.download = 'connections.png';
+		link.href = document.getElementById("canvas").toDataURL();
+		link.type = "image/png";
+		link.click();
+	}
+
+	// Display image full screen
+	function display() {
+		var canvas = document.getElementById('canvas');
+		var dataURL = canvas.toDataURL();
+		var img = document.createElement('img');
+		img.src = dataURL;
+		img.style.width = "100%";
+		document.getElementsByTagName('body')[0].innerHTML = '';
+		// TODO: append go back button
+		document.getElementsByTagName('body')[0].appendChild(img);
+	}
+</script>
