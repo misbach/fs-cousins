@@ -8,20 +8,9 @@
 </style>
 
 	<div class="col-2 mb-2">
-		<input type="text" class="form-control" id="number" maxlength="4" placeholder="#">
-	</div>
-
-	<div class="col-4 mb-2">
-		<select id="phrase" class="form-control">
-			<option value="Now I know where I got my good looks">Now I know where I got my good looks.</option>
-			<option value="We are Family">We are Family!</option>
-			<option value="I’m Connected">I’m Connected!</option>
-			<option value="Fabulous Family Finds">Fabulous Family Finds</option>
-			<option value="They can run but they can’t hide">They can run but they can’t hide.</option>
-			<option value="I’m still the favorite">I’m still the favorite.</option>
-		</select>
-		<button class="btn btn-primary" onclick="draw()">Create Meme</button>
-	</div>
+		<input type="text" class="form-control" id="number" maxlength="6" placeholder="#">
+    </div>
+    <button class="btn btn-primary" onclick="draw()">Create Meme</button>
 
 	<div>
 		<canvas id="canvas" onclick="display()"></canvas>
@@ -43,28 +32,21 @@
 
 	function draw() {
 		let number = $('#number').val();
-		let phrase = $('#phrase option:selected').text();
 		var canvas = document.getElementById('canvas');
 		var ctx = canvas.getContext('2d');
 
 		// Load template image
-		let img = loadImage("https://i.imgur.com/MDbwvcL.png", main);
+		let img = loadImage("https://i.imgur.com/Jo9qruO.png", main);
 
 		function main() {
 			// Put template on canvas
 			ctx.drawImage(img, 0, 0, size, size);
 
-
-			ctx.font = "95px Saira Condensed";
+			ctx.font = "110px Saira Condensed";
 			console.log(number.length);
 			ctx.textAlign = "center";
-			ctx.fillStyle = "#446167";
-			ctx.fillText(number, 470, 290);
-
-			ctx.font = "30px Arima Madurai";
-			ctx.textAlign = "center";
 			ctx.fillStyle = "#ffffff";
-			ctx.fillText(phrase, size/2, 525);
+			ctx.fillText(number, 325, 290);
         }
 		$('.share').show();
 	}

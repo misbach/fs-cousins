@@ -42,6 +42,9 @@
 
 	// Name Search
 	$('.search').click(function() {
+		// Trigger analytics
+		if (typeof utag !== 'undefined') utag.link({'event_name': 'click_action','link_name': 'Blog: Tita (Search performed)'});
+
 		$('.info1').hide();
 		$('.info2').hide();
 		$('.download').hide();
@@ -100,8 +103,9 @@
 					$('.info1').show();
 					$('#canvas').show();
 				} else {
-					$('.info2').html("Infelizmente este sobrenome não compartilha dos mesmos países que o do Tita. Tente outro sobrenome ou compartilhe este link com seus amigos para que eles vejam se tem conexões: http://bit.ly/fs-tita");
 					$('.info2').show();
+					$('.info2').html('Infelizmente este sobrenome não compartilha dos mesmos países que o do Tita. Tente outro sobrenome, compartilhe este link com seus amigos para que eles vejam se tem conexões: <a href="http://familysearch.me/tita">(familysearch.me/tita)</a>');
+					$('.info2').append(', ou ainda clique no botão abaixo para ver outras informações e experiências de descobertas.');
 					$('#canvas').hide();
 				}
 			});
@@ -150,6 +154,9 @@
 	}
 
 	function download() {
+		// Trigger analytics
+		if (typeof utag !== 'undefined') utag.link({'event_name': 'click_action','link_name': 'Blog: Tita (Image download)'});
+
 		var link = document.createElement('a');
 		link.download = 'tita.png';
 		link.href = document.getElementById("canvas").toDataURL();
@@ -159,6 +166,9 @@
 
 	// Display image full screen
 	function display() {
+		// Trigger analytics
+		if (typeof utag !== 'undefined') utag.link({'event_name': 'click_action','link_name': 'Blog: Tita (Image download)'});
+
 		var canvas = document.getElementById('canvas');
 		var dataURL = canvas.toDataURL();
 		var img = document.createElement('img');
@@ -166,6 +176,7 @@
 		img.style.width = "100%";
 		document.getElementsByTagName('body')[0].innerHTML = '';
 		// TODO: append go back button
+		$('body').html('<center><p><a href="#" onclick="location.reload()">VOLTAR</a></p></center><br /><br />');
 		document.getElementsByTagName('body')[0].appendChild(img);
 	}
 

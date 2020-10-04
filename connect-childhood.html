@@ -1,8 +1,8 @@
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Mansalva&display=swap" rel="stylesheet">
-<span style="font-family: 'Mansalva', cursive;">&nbsp;</span>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@600&display=swap" rel="stylesheet">
+<span style="font-family: 'Source Sans Pro', sans-serif;">&nbsp;</span>
 	<div class="col-4 mb-2">
-		<input type="text" class="form-control" id="name" maxlength="35" placeholder="photo title">
+		<input type="text" class="form-control" id="name" maxlength="16" placeholder="photo title">
 	</div>
 
     <div class="custom-file col-4 mb-2">
@@ -37,26 +37,25 @@
 
 	function draw() {
 		let name = $('#name').val();
-		let scale = 440 / userImg.width; // Set desired width
-		let indent = (size - (userImg.width * scale)) / 2;
+		let scale = 365 / userImg.height; // Set desired width
 
 		var canvas = document.getElementById('canvas');
 		var ctx = canvas.getContext('2d');
 
 		// Load template image
-		let img = loadImage("https://i.imgur.com/DJ24vvO.png", main);
+		let img = loadImage("https://i.imgur.com/hfZgLLG.png", main);
 
 		function main() {
 			// Put template on canvas
 			ctx.drawImage(img, 0, 0, size, size);
 
 			// Put uploaded image on canvas
-			ctx.drawImage(userImg, 80, 100, userImg.width * scale, userImg.height * scale);
+			ctx.drawImage(userImg, 292, 145, userImg.width * scale, userImg.height * scale);
 
-			ctx.font = "40px Mansalva";
-			ctx.textAlign = "center";
-			ctx.fillStyle = "#dcaa98";
-			ctx.fillText(name, 300, 515);
+			ctx.font = "30px Source Sans Pro";
+			ctx.textAlign = "right";
+			ctx.fillStyle = "#ffffff";
+			ctx.fillText(name, 250, 535);
         }
 		$('.share').show();
 	}
