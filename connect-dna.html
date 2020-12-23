@@ -1,0 +1,130 @@
+<a onclick="fs.oauthRedirect()" href="javascript:void(0);" class="btn btn-primary">Login</a>
+<br />
+
+<div style="width: 650px; height: 650px;">
+	<canvas id="canvas2"></canvas>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw==" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/gh/emn178/chartjs-plugin-labels/src/chartjs-plugin-labels.js"></script>
+<script src="https://unpkg.com/fs-js-lite@latest/dist/FamilySearch.min.js"></script>
+<script type="text/javascript">
+	// FS Auth
+	var fs = new FamilySearch({
+		environment: 'production',
+		appKey: 'a02j000000KTRjpAAH',
+		// redirectUri: 'https://misbach.github.io/fs-surnames/'
+		redirectUri: 'http://localhost:5000/connect-dna.html'
+	});
+
+	let ethnicity = {};
+	let total = 0;
+	let chart = null;
+
+	// Finish oauth flow by obtaining access_token
+	fs.oauthResponse(function() {
+		$('.login').hide();
+
+		// Get current user's tree ID
+		fs.get('/platform/users/current', function(error, response) {
+			// Get User's ancestry
+			fs.get('/platform/tree/ancestry?generations=5&personDetails=1&person='+response.data.users[0].personId, function(error, rsp) {
+				// Get ancestral birth countries
+				for (var i=rsp.data.persons.length-1; i > 8; i--) {
+					// Calculate Generation
+					let slotNum = i;
+					let generation = 0;
+					do {
+						slotNum = slotNum / 2;
+						generation++;
+					} while (slotNum > 1);
+
+					// Get geo
+					if (rsp.data.persons[i].display.birthPlace) {
+						geo = rsp.data.persons[i].display.birthPlace.split(",");
+						geo = geo[geo.length-1].trim();
+					}
+
+					// Skip United States
+					if (geo == "United States") continue;
+					
+					// Add to ethnicity
+					if (ethnicity[geo]) {
+						ethnicity[geo] = ethnicity[geo] + generation * generation;
+					} else ethnicity[geo] = generation * generation;
+				}
+
+				// TODO Sort countries
+				let eth2 = [];
+				for (var key in ethnicity) {
+					ethnicity[key];
+					key;
+					eth2.push({ geo: key, value: ethnicity[key] });
+				}
+				eth2.sort(function(a, b){
+					return a.value - b.value;
+				});
+
+				// chart data
+				let colors = ["#54B267", "#943126", "#5B2C6F", "#1A5276", "#117864", "#9C640C", "#212F3C", "#873600", "#515A5A"];
+				let data = { datasets: [ { data: [], backgroundColor: colors } ], labels: [] };
+				for (let i = 0; i < eth2.length; i++) {
+					data.datasets[0].data.push(eth2[i].value);
+					data.labels.push(eth2[i].geo);
+				}
+
+				// chart options
+				let pieExtend = Chart.controllers.pie.prototype.draw;
+				options = {
+					tooltips: { enabled: false },
+					legend: false,
+					plugins: {
+						labels: [
+							{ render: 'label', fontSize: 20, fontColor: "#000000", position: 'outside', textMargin: 8 },
+							{ render: 'percentage', fontSize: 20, fontColor: "#ffffff" }
+						]
+					},
+					layout: {
+						padding: { left: 50, right: 50, top: 50, bottom: 50 }
+					},
+					animation: { duration: 0 },
+					hover: { animationDuration: 0 },
+					responsiveAnimationDuration: 0
+				};
+				// Pie chart
+				var canvas2 = document.getElementById("canvas2");
+				var ctx2 = canvas2.getContext("2d");
+
+				Chart.helpers.extend(Chart.controllers.pie.prototype, {
+					draw: function() {
+						// Pre chart canvas elements
+						this.chart.chart.ctx.fillStyle = "#436167";
+						this.chart.chart.ctx.fillRect(0, 0, canvas2.width, canvas2.height);
+						this.chart.chart.ctx.font = "20px Arial black";
+						this.chart.chart.ctx.fillStyle = "#cccccc";
+						this.chart.chart.ctx.fillText("Connections-Experiment DNA Chart", 20, 20)
+						// Render pie chart
+						pieExtend.apply(this, arguments);
+					}
+				});
+
+				chart = new Chart(ctx2, { type: 'pie', data: data, options: options });
+
+
+				// Copy PIE chart to base64Image and put it on another canvas element
+				// var canvas = document.getElementById("canvas");
+				// var ctx = canvas.getContext("2d");
+				// var image = new Image();
+				// image.onload = function() {
+				// 	ctx.drawImage(image, 0, 0, 400, 200, 0, 0, 400, 200);
+				// };
+				// image.src = chart.toBase64Image();
+				// ctx.fillStyle = "#cccccc";
+				// ctx.fillText("WORLD", 10, 10);
+
+			});
+		});
+	});
+</script>

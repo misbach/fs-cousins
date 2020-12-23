@@ -11,7 +11,7 @@
 	</div>
 
 	<style>.countryMap { height: 45px; margin-right: 10px; }</style>
-	<div class="info1" style="display: none;">Você e o Tita estão conectados! Vocês compartilham sobrenomes dos mesmos países. Selecione uma bandeira e compartilhe o seu meme.</div>
+	<div class="info1" style="display: none;">Você e o Tita estão conectados! Vocês compartilham sobrenomes dos mesmos países. Selecione uma bandeira e compartilhe a imagem abaixo sobre vocês.</div>
 	<div class="info2" style="display: none;">Infelizmente este sobrenome não compartilha dos mesmos países que o do Tita. Tente outro sobrenome ou compartilhe este link com seus amigos para que eles vejam se tem conexões.</div>
 	<ul class="flags" style="margin-top: 30px; display: flex; list-style: none; text-align: center; justify-content: center;"></ul>
 
@@ -99,7 +99,7 @@
 				}
 				if (flag) {
 					shareImg(homeland, flag);
-					$('.info1').html("Você e o Tita estão conectados! Vocês compartilham sobrenomes dos mesmos países. Selecione uma bandeira e compartilhe o seu meme.");
+					$('.info1').html("Você e o Tita estão conectados! Vocês compartilham sobrenomes dos mesmos países. Selecione uma bandeira e compartilhe a imagem abaixo sobre vocês.");
 					$('.info1').show();
 					$('#canvas').show();
 				} else {
